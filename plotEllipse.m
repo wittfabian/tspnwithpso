@@ -6,11 +6,10 @@ x = x0 + r1 * cos(t);
 y = y0 + r2 * sin(t);
 
 plot(x0,y0,'+')
-hold on
 
 plot(x, y)
-hold on
 
+hold on
 
 end
 
