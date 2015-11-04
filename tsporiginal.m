@@ -9,7 +9,9 @@ delimiterIn = ' ';
 headerlinesIn = 1; 
 
 % loop through the files
-for f=1 %size(filename,2)
+for f=1:1:size(filename,2)
+    
+    fprintf('dataset: %s\n',filename{f});
     
     % load datafile
     datastruct = importdata(['data/' filename{f} '.dat'], delimiterIn, headerlinesIn);
@@ -18,6 +20,7 @@ for f=1 %size(filename,2)
     data = datastruct.data(:,:);
     
     % plot the ellipse
+    figure;
     for i=1:1:size(data,1)
 
         plotEllipse( data(i,1), data(i,2), data(i,3), data(i,4) );
@@ -61,6 +64,47 @@ for f=1 %size(filename,2)
     tours = detectSubtours(x_tsp,idxs);
     numtours = length(tours); % number of subtours
     fprintf('# of subtours: %d\n',numtours);
+    
+    hold on
+    segments = find(x_tsp); % Get indices of lines on optimal path
+    lh = zeros(nStops,1); % Use to store handles to lines on plot
+    lh = updateSalesmanPlot(lh,x_tsp,idxs,data(:,1),data(:,2));
+    
+    A = spalloc(0,lendist,0); % Allocate a sparse linear inequality constraint matrix
+    b = [];
+    while numtours > 1 % repeat until there is just one subtour
+        % Add the subtour constraints
+        b = [b;zeros(numtours,1)]; % allocate b
+        A = [A;spalloc(numtours,lendist,nStops)]; % a guess at how many nonzeros to allocate
+        for ii = 1:numtours
+            rowIdx = size(A,1)+1; % Counter for indexing
+            subTourIdx = tours{ii}; % Extract the current subtour
+    %         The next lines find all of the variables associated with the
+    %         particular subtour, then add an inequality constraint to prohibit
+    %         that subtour and all subtours that use those stops.
+            variations = nchoosek(1:length(subTourIdx),2);
+            for jj = 1:length(variations)
+                whichVar = (sum(idxs==subTourIdx(variations(jj,1)),2)) & ...
+                           (sum(idxs==subTourIdx(variations(jj,2)),2));
+                A(rowIdx,whichVar) = 1;
+            end
+            b(rowIdx) = length(subTourIdx)-1; % One less trip than subtour stops
+        end
+
+        % Try to optimize again
+        [x_tsp,costopt,exitflag,output] = intlinprog(dist,intcon,A,b,Aeq,beq,lb,ub,opts);
+
+        % Visualize result
+        lh = updateSalesmanPlot(lh,x_tsp,idxs,data(:,1),data(:,2));
+
+        % How many subtours this time?
+        tours = detectSubtours(x_tsp,idxs);
+        numtours = length(tours); % number of subtours
+        fprintf('# of subtours: %d\n',numtours);
+    end
+
+    title('Solution with Subtours Eliminated');
+    %hold off
     
     hold on
     segments = find(x_tsp); % Get indices of lines on optimal path
