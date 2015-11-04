@@ -9,10 +9,10 @@ delimiterIn = ' ';
 headerlinesIn = 1; 
 
 % loop through the files
-for f=1:1:size(filename,2)
+for f=2%:1:size(filename,2)
     
     fprintf('dataset: %s\n',filename{f});
-    
+   
     % load datafile
     datastruct = importdata(['data/' filename{f} '.dat'], delimiterIn, headerlinesIn);
 
