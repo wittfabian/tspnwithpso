@@ -10,7 +10,7 @@ delimiterIn = ' ';
 headerlinesIn = 1; 
 
 % loop through all files
-for f=10%:1:size(filename,2)
+for f=21%:1:size(filename,2)
     
     fprintf('dataset: %s\n',filename{f});
    
