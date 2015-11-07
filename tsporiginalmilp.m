@@ -1,31 +1,32 @@
 % Mixed Integer Linear Program (MILP)
 
+% loadDataFileInMatrix( 'data/', input, ' ', 1 )
+
+%load('data/datasets.mat');
+
 % list of datafiles
 filename = {'_tspn2DE5_1', '_tspn2DE5_2', '_tspn2DE6_1', '_tspn2DE6_2', '_tspn2DE7_1', '_tspn2DE7_2', '_tspn2DE8_1', '_tspn2DE8_2', '_tspn2DE9_1', '_tspn2DE9_2', '_tspn2DE10_1', '_tspn2DE10_2', '_tspn2DE11_1', '_tspn2DE11_2', '_tspn2DE12_1', '_tspn2DE12_2', '_tspn2DE13_1', '_tspn2DE13_2', '_tspn2DE14_1', '_tspn2DE14_2', '_tspn2DE15_1', '_tspn2DE15_2', '_tspn2DE16_1', '_tspn2DE16_2'};
 
-% set the delimiter
-delimiterIn = ' ';
+result = zeros(size(filename,2), 2);
 
-% set the header, if exist
-headerlinesIn = 1; 
+showplot = false;
 
 % loop through all files
-for f=21%:1:size(filename,2)
-    
+for f=1:1:size(filename,2)
+    tic;
     fprintf('dataset: %s\n',filename{f});
-   
-    % load datafile
-    datastruct = importdata(['data/' filename{f} '.dat'], delimiterIn, headerlinesIn);
 
     % get the data: structure = X Y R1 R2
-    data = datastruct.data(:,:);
+    data = eval(['dataset' filename{f}]);
     
     % plot the ellipse
-    figure;
-    for i=1:1:size(data,1)
+    if showplot == true
+        figure;
+        for i=1:1:size(data,1)
 
-        plotEllipse( data(i,1), data(i,2), data(i,3), data(i,4) );
+            plotEllipse( data(i,1), data(i,2), data(i,3), data(i,4) );
 
+        end
     end
     
     % number of towns (stops)
@@ -66,10 +67,14 @@ for f=21%:1:size(filename,2)
     numtours = length(tours); % number of subtours
     fprintf('# of subtours: %d\n',numtours);
     
-    hold on
+   
     segments = find(x_tsp); % Get indices of lines on optimal path
     lh = zeros(nStops,1); % Use to store handles to lines on plot
-    lh = updateSalesmanPlot(lh,x_tsp,idxs,data(:,1),data(:,2));
+    
+    if showplot == true
+        hold on
+        lh = updateSalesmanPlot(lh,x_tsp,idxs,data(:,1),data(:,2));
+    end
     
     A = spalloc(0,lendist,0); % Allocate a sparse linear inequality constraint matrix
     b = [];
@@ -96,7 +101,9 @@ for f=21%:1:size(filename,2)
         [x_tsp,costopt,exitflag,output] = intlinprog(dist,intcon,A,b,Aeq,beq,lb,ub,opts);
 
         % Visualize result
-        lh = updateSalesmanPlot(lh,x_tsp,idxs,data(:,1),data(:,2));
+        if showplot == true
+            lh = updateSalesmanPlot(lh,x_tsp,idxs,data(:,1),data(:,2));
+        end
 
         % How many subtours this time?
         tours = detectSubtours(x_tsp,idxs);
@@ -104,16 +111,23 @@ for f=21%:1:size(filename,2)
         fprintf('# of subtours: %d\n',numtours);
     end
 
-    title('Solution with Subtours Eliminated');
+    %title('Solution with Subtours Eliminated');
     %hold off
     
     fprintf('min. distance: %f\n',dist'*x_tsp);
     
-    hold on
+    
     segments = find(x_tsp); % Get indices of lines on optimal path
     lh = zeros(nStops,1); % Use to store handles to lines on plot
-    lh = updateSalesmanPlot(lh,x_tsp,idxs,data(:,1),data(:,2));
-    hold off
     
+    if showplot == true
+        hold on
+        lh = updateSalesmanPlot(lh,x_tsp,idxs,data(:,1),data(:,2));
+        hold off
+    end
+    
+    
+    result(f,1) = dist' * x_tsp;
+    result(f,2) = toc * 1000;
 end
 
