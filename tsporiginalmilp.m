@@ -1,3 +1,4 @@
+% Mixed Integer Linear Program (MILP)
 
 % list of datafiles
 filename = {'_tspn2DE5_1', '_tspn2DE5_2', '_tspn2DE6_1', '_tspn2DE6_2', '_tspn2DE7_1', '_tspn2DE7_2', '_tspn2DE8_1', '_tspn2DE8_2', '_tspn2DE9_1', '_tspn2DE9_2', '_tspn2DE10_1', '_tspn2DE10_2', '_tspn2DE11_1', '_tspn2DE11_2', '_tspn2DE12_1', '_tspn2DE12_2', '_tspn2DE13_1', '_tspn2DE13_2', '_tspn2DE14_1', '_tspn2DE14_2', '_tspn2DE15_1', '_tspn2DE15_2', '_tspn2DE16_1', '_tspn2DE16_2'};
@@ -8,11 +9,11 @@ delimiterIn = ' ';
 % set the header, if exist
 headerlinesIn = 1; 
 
-% loop through the files
-for f=1:1:size(filename,2)
+% loop through all files
+for f=21%:1:size(filename,2)
     
     fprintf('dataset: %s\n',filename{f});
-    
+   
     % load datafile
     datastruct = importdata(['data/' filename{f} '.dat'], delimiterIn, headerlinesIn);
 
@@ -56,7 +57,7 @@ for f=1:1:size(filename,2)
     lb = zeros(lendist,1);
     ub = ones(lendist,1);
 
-    % Optimize Using intlinprog
+    % Optimize Using intlinprog - Mixed Integer Linear Program
     opts = optimoptions('intlinprog','Display','off');
     [x_tsp,costopt,exitflag,output] = intlinprog(dist,intcon,[],[],Aeq,beq,lb,ub,opts);
     
@@ -105,6 +106,8 @@ for f=1:1:size(filename,2)
 
     title('Solution with Subtours Eliminated');
     %hold off
+    
+    fprintf('min. distance: %f\n',dist'*x_tsp);
     
     hold on
     segments = find(x_tsp); % Get indices of lines on optimal path
