@@ -12,7 +12,7 @@ function [ path, total_length, travelPoints ] = psoOneNeighborhoodOpt( data, pat
 
             personalBest = particlePos;
 
-            globalBest = personalBest(1,:); % initialize globalBest with first personalBest of the first particle
+            globalBest = personalBest(1,:); % initialize globalBest with personalBest of the first particle
 
             [ globalBest, ~ ] = findGlobalBest( personalBest, globalBest, travelPoints, path, n );
 
@@ -34,7 +34,7 @@ function [ path, total_length, travelPoints ] = psoOneNeighborhoodOpt( data, pat
                     % x_i(t+1) => new position of the particle p
                     if isPointInEllipse( data(n,:), (particlePos(p,:) + newVelocity') ) == true
                         particlePos(p,:) = particlePos(p,:) + newVelocity';
-                        lastVelocity(p,:) = newVelocity;
+                        lastVelocity(p,:) = newVelocity';
                     else
                         % if point leaves the ellipse => set the point at the border
                         [~, XYproj] = Residuals_ellipse(particlePos(p,:), [data(n,:) 0]); 
