@@ -3,14 +3,14 @@
 % load datasets
 % load('data/datasets.mat');
 
-result = zeros(size(datasetname,2), 4);
+result = zeros(size(datasetname,2), 5);
 
 showplot_h = false;
-showplot_pso = true;
+showplot_pso = false;
 
 % loop through all files
 fprintf('PSO with one by one neighborhood optimization:\n');
-for f = 1%:1:size(datasetname,2)
+for f = 1:1:size(datasetname,2)
     
     fprintf('dataset: %s\n',datasetname{f});
     
@@ -33,11 +33,12 @@ for f = 1%:1:size(datasetname,2)
     
     fprintf('particle swarm optimization:\n');
     tPso = tic;
-    [ path, total_length_pso, travelPoints ] = psoOneNeighborhoodOpt( data, path, 50, 10, 10 );
+    %[ path, total_length, travelPoints ] = psoOneNeighborhoodOpt( data, path, swarmQuantity, cityIter, particleIter )
+    [ path, total_length_pso, travelPoints ] = psoOneNeighborhoodOpt( data, path, 50, 2, 2 );
     
     result(f,4) = toc(tPso) * 1000;
     result(f,3) = total_length_pso;
-    
+    result(f,5) = result(f,2) + result(f,4); % over all time in ms
     fprintf('distance %f in %f ms:\n', round(result(f,3), 3), round(result(f,4), 3));
     
     if showplot_pso == true
