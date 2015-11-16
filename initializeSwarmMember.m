@@ -15,9 +15,5 @@ function [ particlePos ] = initializeSwarmMember( ellipse, quantity )
             end
         end
     end
-    
-    
-    
-    
 end
 

@@ -10,7 +10,7 @@ showplot_pso = false;
 
 % loop through all files
 fprintf('PSO with one by one neighborhood optimization:\n');
-for f = 1:1:size(datasetname,2)
+for f = 1%:1:size(datasetname,2)
     
     fprintf('dataset: %s\n',datasetname{f});
     
