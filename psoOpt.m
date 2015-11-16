@@ -1,4 +1,4 @@
-function [ path, total_length, travelPoints ] = psoOpt( data, path, swarmQuantity, particleIter )
+function [ path, total_length, travelPoints ] = psoOpt( data, path, swarmQuantity, particleIter, stopThreshold )
 
     travelPoints = data(:,1:2);
     
@@ -10,12 +10,15 @@ function [ path, total_length, travelPoints ] = psoOpt( data, path, swarmQuantit
     personalBest = particlePos;
 
     % initialize globalBest with personalBest of the first particle
-    [ globalBest, ~ ] = findGlobalBestFullPath( path, personalBest );
+    [ globalBest, globalBestDist ] = findGlobalBestFullPath( path, personalBest );
 
     lastVelocity = zeros(anzCity, 2, swarmQuantity);
     lastVelocity(:) = 0.5;
         
-    for pi=1:1:particleIter
+    lastGlobalBestDist = globalBestDist + 1;
+    
+    pi = 1;
+    while true
 
         w = 0.8; % influence of the last velicity
 
@@ -51,7 +54,14 @@ function [ path, total_length, travelPoints ] = psoOpt( data, path, swarmQuantit
 
         end
         % update globalBest after optimization
-        [ globalBest, ~ ] = findGlobalBestFullPath( path, personalBest, globalBest );
+        [ globalBest, globalBestDist ] = findGlobalBestFullPath( path, personalBest, globalBest );
+        fprintf('globalBest %.3f\n', globalBestDist);
+        
+        if (lastGlobalBestDist - globalBestDist) < stopThreshold || pi >= particleIter
+            break
+        end
+        pi = pi + 1;
+        lastGlobalBestDist = globalBestDist;
     end
     % save the best route
     travelPoints = globalBest;
