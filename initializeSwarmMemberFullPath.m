@@ -101,6 +101,4 @@ function particlePos = fourpartsInitialization( data, quantity )
             end
         end
     end
-    
 end
-

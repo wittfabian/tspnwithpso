@@ -6,11 +6,11 @@
 result = zeros(size(datasetname,2), 5);
 
 showplot_h = false;
-showplot_pso = true;
+showplot_pso = false;
 
 % loop through all files
 fprintf('PSO with full path optimization:\n');
-for f = 1%:1:size(datasetname,2)
+for f = 1:1:size(datasetname,2)
     
     fprintf('dataset: %s\n',datasetname{f});
     
@@ -33,8 +33,8 @@ for f = 1%:1:size(datasetname,2)
     
     fprintf('particle swarm optimization:\n');
     tPso = tic;
-    %[ path, total_length, travelPoints ] = psoOpt( data, path, swarmQuantity, particleIter, stopThreshold )
-    [ path, total_length_pso, travelPoints ] = psoOpt( data, path, 30, 1000, 0.000005 );
+    %[ path, total_length, travelPoints ] = psoOpt( data, path, swarmQuantity, particleIter, stopThreshold, useTurbulenceFactor, tfNewSet )
+    [ path, total_length_pso, travelPoints ] = psoOpt( data, path, 30, 50, 0.0000005, true, 5 );
     
     result(f,4) = toc(tPso) * 1000;
     result(f,3) = total_length_pso;

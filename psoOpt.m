@@ -1,10 +1,19 @@
-function [ path, total_length, travelPoints ] = psoOpt( data, path, swarmQuantity, particleIter, stopThreshold )
+% optimization with PSO
+% data - ellipse information with format: x0 y0 rx ry
+% path - shortest path until now
+% swarmQuantity - number of swarm members per ellipse
+% particleIter - maximal number of iterations
+% stopThreshold - minimal change in global distance to continue optimization
+% useTurbulenceFactor - decide whether turbulence factor should be used or not
+% tfNewSet - if useTurbulenceFactor == true: number of particles that were used for turbulence factoring
+
+function [ path, total_length, travelPoints ] = psoOpt( data, path, swarmQuantity, particleIter, stopThreshold, useTurbulenceFactor, tfNewSet  )
 
     travelPoints = data(:,1:2);
     
     anzCity = size(data,1);
     
-    % initialize particles in each ellipse
+    % initialize particles in each ellipse: types: random or fourparts
     particlePos = initializeSwarmMemberFullPath( data, swarmQuantity, 'fourparts' );
 
     personalBest = particlePos;
@@ -12,15 +21,18 @@ function [ path, total_length, travelPoints ] = psoOpt( data, path, swarmQuantit
     % initialize globalBest with personalBest of the first particle
     [ globalBest, globalBestDist ] = findGlobalBestFullPath( path, personalBest );
 
+    % initialize velocity
     lastVelocity = zeros(anzCity, 2, swarmQuantity);
     lastVelocity(:) = 0.5;
         
-    lastGlobalBestDist = globalBestDist + 1;
+    lastGlobalBestDist(1,1) = globalBestDist + 1;
+    lastGlobalBestDist(2,1) = globalBestDist + 1;
     
+    addTF = 0;
     pi = 1;
     while true
 
-        w = 0.8; % influence of the last velicity
+        w = 0.5; % influence of the last velicity
 
         for p=1:1:size(particlePos,3) % iterate through particles (one particle = one tour)
 
@@ -42,26 +54,52 @@ function [ path, total_length, travelPoints ] = psoOpt( data, path, swarmQuantit
 
                     particlePos(n,:,p) = XYproj;
                 end
+                
+                % find new personalBest for city n
+                distpersonalBest = distancePath( personalBest(:,:,p), path );
+                distAktPos = distancePath( particlePos(:,:,p), path );
+                if distAktPos < distpersonalBest
+                    personalBest(n,:,p) = particlePos(n,:,p);
+                end
             end
-
-            distpersonalBest = distancePath( personalBest(:,:,p), path );
-
-            distAktPos = distancePath( particlePos(:,:,p), path );
-
-            if distAktPos < distpersonalBest
-                personalBest(:,:,p) = particlePos(:,:,p);
-            end
-
         end
         % update globalBest after optimization
         [ globalBest, globalBestDist ] = findGlobalBestFullPath( path, personalBest, globalBest );
-        fprintf('globalBest %.3f\n', globalBestDist);
+        %fprintf('globalBest %.3f\n', globalBestDist);
         
-        if (lastGlobalBestDist - globalBestDist) < stopThreshold || pi >= particleIter
+        
+        %fprintf('lastGlobalBestDist: %d; globalBestDist: %d; iter: %i\n', lastGlobalBestDist(end,1), globalBestDist, pi);
+        lastGlobalBestDist = [lastGlobalBestDist; globalBestDist];
+        tfUsed = zeros(size(path,2), tfNewSet);
+        if ~checkDistChange( lastGlobalBestDist, 2 ) && addTF < 2 && useTurbulenceFactor == true % add turbulence factor 
+            %fprintf('add turbulence factor\n');
+            
+            for s=1:1:size(path,2)
+                for pt = 1:1:tfNewSet
+                    while true
+                        tfp = round( (swarmQuantity - 1) * rand(1) + 1 ); 
+
+                        if sum(ismember(tfUsed(s,:), tfp)) == 0
+
+                            particlePos(s,:,tfp) = initializeSwarmMember( data(s,:), 1 ); 
+                            personalBest(s,:,tfp) = particlePos(s,:,tfp);
+                            tfUsed(s,pt) = tfp;
+                            break
+                        end
+                    end
+                end
+            end
+            lastGlobalBestDist = [];
+            lastGlobalBestDist(1,1) = globalBestDist + 1;
+            lastGlobalBestDist(2,1) = globalBestDist + 1;
+            %pi = 0;
+            addTF = addTF + 1;
+            
+        elseif ((lastGlobalBestDist(end-1,1) - globalBestDist) < stopThreshold && ~checkDistChange( lastGlobalBestDist, 2 )) || pi >= particleIter
             break
         end
+
         pi = pi + 1;
-        lastGlobalBestDist = globalBestDist;
     end
     % save the best route
     travelPoints = globalBest;

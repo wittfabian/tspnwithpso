@@ -1,4 +1,4 @@
-function [ particlePos ] = initializeSwarmMember( ellipse, quantity )
+function particlePos = initializeSwarmMember( ellipse, quantity )
 
     particlePos = zeros(quantity, 2);
     
