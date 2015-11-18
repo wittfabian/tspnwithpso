@@ -6,6 +6,9 @@ function particlePos = initializeSwarmMemberFullPath( data, quantity, type )
             
         case 'fourparts'
             particlePos = fourpartsInitialization( data, quantity );
+            
+        case 'center'
+            particlePos = centerInitialization( data, quantity );
         
         otherwise
             particlePos = randomInitialization( data, quantity );
@@ -99,6 +102,20 @@ function particlePos = fourpartsInitialization( data, quantity )
                     aktParticle = aktParticle + 1;
                 end
             end
+        end
+    end
+end
+
+function particlePos = centerInitialization( data, quantity )
+
+    particlePos = zeros(size(data,1), 2, quantity); % 3th dimension is the particle
+
+    for p=1:1:quantity % iterate through particles
+        
+        for c=1:1:size(particlePos,1) % iterate through cities
+
+            particlePos(c,:,p) = data(c,1:2);
+            
         end
     end
 end
