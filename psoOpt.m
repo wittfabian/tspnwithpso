@@ -32,7 +32,7 @@ function [ path, total_length, travelPoints ] = psoOpt( data, path, swarmQuantit
     pi = 1;
     while true
 
-        w = 0.8; % influence of the last velicity
+        w = 0.5; % influence of the last velicity
 
         for p=1:1:size(particlePos,3) % iterate through particles (one particle = one tour)
 

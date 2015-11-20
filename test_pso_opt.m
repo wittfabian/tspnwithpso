@@ -40,7 +40,7 @@ for f = 24%:1:size(datasetname,2)
         fprintf('particle swarm optimization (loop %i):\n', l);
         tPso = tic;
         %[ path, total_length, travelPoints ] = psoOpt( data, path, swarmQuantity, particleIter, stopThreshold, useTurbulenceFactor, tfNewSet )
-        [ path, total_length_pso, travelPoints ] = psoOpt( data, path, 5, 50, 0.00001, true, 2 );
+        [ path, total_length_pso, travelPoints ] = psoOpt( data, path, 10, 50, 0.001, true, 2 );
 
         result(f,4,l) = toc(tPso) * 1000;
         result(f,3,l) = total_length_pso;
