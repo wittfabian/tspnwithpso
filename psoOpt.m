@@ -56,8 +56,8 @@ function [ path, total_length, travelPoints ] = psoOpt( data, path, swarmQuantit
                 end
                 
                 % find new personalBest for city n
-                distpersonalBest = distancePath( personalBest(:,:,p), path );
-                distAktPos = distancePath( particlePos(:,:,p), path );
+                distpersonalBest = distancePath( distance(personalBest(:,:,p)), path );
+                distAktPos = distancePath( distance(particlePos(:,:,p)), path );
                 if distAktPos < distpersonalBest
                     personalBest(n,:,p) = particlePos(n,:,p);
                 end
@@ -105,6 +105,6 @@ function [ path, total_length, travelPoints ] = psoOpt( data, path, swarmQuantit
     travelPoints = globalBest;
         
     % calculate the total_length of the cycle
-    total_length = total_length_of_cycle(distance(travelPoints), path);
+    total_length = distancePath(distance(travelPoints), path);
 end
 

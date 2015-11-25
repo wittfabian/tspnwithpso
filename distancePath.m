@@ -1,11 +1,11 @@
-function dist = distancePath(data, path)
+function dist = distancePath(distances, path)
 
     dist = 0.0;
 
     for e=1:1:size(path,2)-1
-       
-        dist = dist + pdist([data(path(e),:); data(path(e+1),:)], 'euclidean');
+        
+        dist = dist + distances(path(e), path(e+1));
     end
     
-    dist = dist + pdist([data(path(end),:); data(path(1),:)], 'euclidean');
+    dist = dist + distances(path(end), path(1));
 end

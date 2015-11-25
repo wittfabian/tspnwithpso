@@ -1,18 +1,18 @@
-function [ globalBestPath, globalBestDist ] = findGlobalBestPermutation( data, personalBest, globalBest )
+function [ globalBestPath, globalBestDist ] = findGlobalBestPermutation( distances, personalBest, globalBest )
 
     if nargin == 2
         globalBest = personalBest(1,:);
     end
 
     globalBestPath = globalBest;
-    globalBestDist = distancePath(data, globalBestPath);
+    globalBestDist = distancePath(distances, globalBestPath);
 
     for d=1:1:size(personalBest,1)
         
-        personalBestDist = distancePath(data, personalBest(d,:));
+        personalBestDist = distancePath(distances, personalBest(d,:));
         
         if personalBestDist < globalBestDist
-            globalBestPath =  personalBest(d,:);
+            globalBestPath = personalBest(d,:);
             globalBestDist = personalBestDist;
         end
     end

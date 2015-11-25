@@ -1,10 +1,14 @@
-function list = getListOfEdgeExchanges( ~, ispath, shallpath )
+function list = getListOfEdgeExchanges( ispath, shallpath )
     
+    list = [];
+
     if size(ispath,2) ~= size(shallpath,2)
         return
     end
     
-    list = [];
+    if sum( ispath == shallpath ) == size(shallpath,2)
+        return 
+    end
 
     while sum( ispath == shallpath ) ~= size(shallpath,2)
 

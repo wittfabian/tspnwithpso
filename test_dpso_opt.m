@@ -6,7 +6,7 @@
 showplot_dpso = true;
 showplot_pso = true;
 
-fullloops = 1;
+fullloops = 2;
 
 result = zeros(size(datasetname,2), 5, fullloops);
 
@@ -21,13 +21,19 @@ for f = 24%:1:size(datasetname,2)
     
     travelPoints = data(:,1:2);
     
-    for l = 1:1:fullloops
+    last_dpso_dist = 0;
+    
+    last_pso_dist = 0;
+    
+    l = 1;
+    while true
         
-        fprintf('insertion_heuristics (loop %i):\n', l);
+        fprintf('descrete PSO (loop %i):\n', l);
         tDpso = tic; % start timer for insertion_heuristics
         % only first two columns of the dataset
-        % [ path, total_length_dpso, travelPoints ] = dPsoOpt( data , swarmQuantity, particleIter);
-        [ path, total_length_dpso ] = dPsoOpt( data , 20, 50);
+        % vRandType: random or 2opt
+        % [ path, total_length_dpso, travelPoints ] = dPsoOpt( data , swarmQuantity, particleIter, vRandType);
+        [ path, total_length_dpso ] = psoOptDisc( data , 30, 1000, '2opt');
 
         result(f,2,l) = toc(tDpso) * 1000; % stop timer & save result
         result(f,1,l) = total_length_dpso;
@@ -38,19 +44,28 @@ for f = 24%:1:size(datasetname,2)
             plotSpace( [travelPoints data(:,3:4)], path );
         end
 
-        %fprintf('particle swarm optimization (loop %i):\n', l);
-        %tPso = tic;
+        fprintf('particle swarm optimization (loop %i):\n', l);
+        tPso = tic;
         %[ path, total_length, travelPoints ] = psoOpt( data, path, swarmQuantity, particleIter, stopThreshold, useTurbulenceFactor, tfNewSet )
-        %[ path, total_length_pso, travelPoints ] = psoOpt( data, path, 10, 50, 0.001, true, 2 );
+        [ path, total_length_pso, travelPoints ] = psoOpt( data, path, 10, 50, 0.001, true, 2 );
 
-        %result(f,4,l) = toc(tPso) * 1000;
-        %result(f,3,l) = total_length_pso;
-        %result(f,5,l) = result(f,2) + result(f,4); % over all time in ms
-        %fprintf('distance %.3f in %.3f ms:\n', result(f,3,l), result(f,4,l));
+        result(f,4,l) = toc(tPso) * 1000;
+        result(f,3,l) = total_length_pso;
+        result(f,5,l) = result(f,2) + result(f,4); % over all time in ms
+        
+        fprintf('distance %.3f in %.3f ms:\n', result(f,3,l), result(f,4,l));
 
-        %if showplot_pso == true
-        %    plotSpaceAfterPSO( data, path, travelPoints );
-        %end
+        if showplot_pso == true
+            plotSpaceAfterPSO( data, path, travelPoints );
+        end
+        
+        if l >= fullloops || ( last_dpso_dist <= total_length_dpso && l > 1 )
+            break
+        end
+        
+        last_dpso_dist = total_length_dpso;
+        last_pso_dist = total_length_pso;
+        l = l + 1;
     end
 end
 

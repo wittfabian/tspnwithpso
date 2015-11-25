@@ -5,11 +5,11 @@ function [ globalBestCoord, globalBestDist ] = findGlobalBestFullPath( path, per
     end
 
     globalBestCoord = globalBest;
-    globalBestDist = distancePath(globalBest, path);
+    globalBestDist = distancePath(distance(globalBest), path);
 
     for d=1:1:size(personalBest,3)
         
-        personalBestDist = distancePath(personalBest(:,:,d), path);
+        personalBestDist = distancePath(distance(personalBest(:,:,d)), path);
         
         if personalBestDist < globalBestDist
             globalBestCoord = personalBest(:,:,d);
