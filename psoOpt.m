@@ -7,7 +7,7 @@
 % useTurbulenceFactor - decide whether turbulence factor should be used or not
 % tfNewSet - if useTurbulenceFactor == true: number of particles that were used for turbulence factoring
 
-function [ path, total_length, travelPoints ] = psoOpt( data, path, swarmQuantity, particleIter, stopThreshold, useTurbulenceFactor, tfNewSet  )
+function [ path, total_length, travelPoints ] = psoOpt( data, path, swarmQuantity, particleIter, stopThreshold, useTurbulenceFactor, tfNewSet, changeInLastElements )
 
     travelPoints = data(:,1:2);
     
@@ -69,7 +69,7 @@ function [ path, total_length, travelPoints ] = psoOpt( data, path, swarmQuantit
         %fprintf('globalBest %.3f\n', globalBestDist);
         
         
-        fprintf('lastGlobalBestDist: %.5f; globalBestDist: %.5f; iter: %i\n', lastGlobalBestDist(end,1), globalBestDist, pi);
+        %fprintf('lastGlobalBestDist: %.5f; globalBestDist: %.5f; iter: %i\n', lastGlobalBestDist(end,1), globalBestDist, pi);
         lastGlobalBestDist = [lastGlobalBestDist; globalBestDist];
         tfUsed = zeros(size(path,2), tfNewSet);
         if ~checkDistChange( lastGlobalBestDist, 2 ) && addTF < 1 && useTurbulenceFactor == true % add turbulence factor 
@@ -95,7 +95,7 @@ function [ path, total_length, travelPoints ] = psoOpt( data, path, swarmQuantit
             lastGlobalBestDist(2,1) = globalBestDist + 2;
             addTF = addTF + 1;
             
-        elseif (lastGlobalBestDist(end-1,1) - globalBestDist) < stopThreshold || ~checkDistChange( lastGlobalBestDist, 2 ) || pi >= particleIter
+        elseif ((lastGlobalBestDist(end-1,1) - globalBestDist) < stopThreshold && (lastGlobalBestDist(end-1,1) - globalBestDist) > 0) || ~checkDistChange( lastGlobalBestDist, changeInLastElements ) || pi >= particleIter
             break
         end
 

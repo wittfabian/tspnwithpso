@@ -3,16 +3,16 @@
 % load datasets
 % load('data/datasets.mat');
 
-showplot_dpso = true;
-showplot_pso = true;
+showplot_dpso = false;
+showplot_pso = false;
 
-fullloops = 2;
+fullloops = 5;
 
 result = zeros(size(datasetname,2), 5, fullloops);
 
 % loop through all files
 fprintf('PSO with full path optimization:\n');
-for f = 24%:1:size(datasetname,2)
+for f = 22%:1:size(datasetname,2)
     
     fprintf('dataset: %s\n',datasetname{f});
 
@@ -26,7 +26,7 @@ for f = 24%:1:size(datasetname,2)
     last_pso_dist = 0;
     
     l = 1;
-    while true
+    %while true
         
         fprintf('descrete PSO (loop %i):\n', l);
         tDpso = tic; % start timer for insertion_heuristics
@@ -43,11 +43,13 @@ for f = 24%:1:size(datasetname,2)
         if showplot_dpso == true
             plotSpace( [travelPoints data(:,3:4)], path );
         end
-
+        
+    while true
+        
         fprintf('particle swarm optimization (loop %i):\n', l);
         tPso = tic;
-        %[ path, total_length, travelPoints ] = psoOpt( data, path, swarmQuantity, particleIter, stopThreshold, useTurbulenceFactor, tfNewSet )
-        [ path, total_length_pso, travelPoints ] = psoOpt( data, path, 10, 50, 0.001, true, 2 );
+        %[ path, total_length, travelPoints ] = psoOpt( data, path, swarmQuantity, particleIter, stopThreshold, useTurbulenceFactor, tfNewSet, changeInLastElements )
+        [ path, total_length_pso, travelPoints ] = psoOpt( data, path, 50, 100, 0, true, 5, 20 );
 
         result(f,4,l) = toc(tPso) * 1000;
         result(f,3,l) = total_length_pso;
@@ -59,7 +61,8 @@ for f = 24%:1:size(datasetname,2)
             plotSpaceAfterPSO( data, path, travelPoints );
         end
         
-        if l >= fullloops || ( last_dpso_dist <= total_length_dpso && l > 1 )
+        %if l >= fullloops || ( last_dpso_dist <= total_length_dpso && l > 1 )
+        if l >= fullloops
             break
         end
         

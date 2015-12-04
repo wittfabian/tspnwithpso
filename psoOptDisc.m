@@ -14,7 +14,7 @@ function [ path, total_length ] = psoOptDisc( data, swarmQuantity, particleIter,
     % initialize globalBest with personalBest of the first particle
     [ globalBestPath, globalBestDist ] = findGlobalBestPermutation( distances, personalBest );
     
-    fprintf('globalBestPath: %s, %f\n', sprintf('%i ', globalBestPath), globalBestDist);
+    %fprintf('globalBestPath: %s, %f\n', sprintf('%i ', globalBestPath), globalBestDist);
     
     pi = 1;
     
@@ -71,30 +71,8 @@ function [ path, total_length ] = psoOptDisc( data, swarmQuantity, particleIter,
             particlePos_left = applyEdgeExchange( particlePos_mid, particlePos(p,:) ); % d_glob + 0.5 * (d_loc - d_glob)
             
             % add random position
-            if isequal(vRandType, 'random') % random position
-                
-                pRand = particlePos(p,:);
-                edgeExch = [];
-                
-                for randIter=1:1:2 % apply two edge exchanges
-                    while true
-                        startR = max(round((size(pRand,2)-1)*rand(1) + 1),1);
-                        endR = startR + max(round((size(pRand,2)-1)*rand(1) + 1),1);
-
-                        if r(startR, pRand) ~= r(endR, pRand)
-                            edgeExch = [edgeExch; r(startR, pRand) r(endR, pRand)];
-                            break
-                        end 
-                    end
-                end
-                pRand = applyEdgeExchange( edgeExch, pRand );
-                
-            elseif isequal(vRandType, '2opt') % 2-opt position random position
-
-                [pRand, ~] = opt2(particlePos(p,:), distances);
-            else
-                pRand = particlePos(p,:);
-            end
+            %pRand = psoDiscRandomFact( particlePos(p,:), distances, 0, vRandType );
+            pRand = psoDiscRandomFact( particlePos_left, distances, 0, vRandType );
             
             % v_rand = r_rand * b_rand * (p_rand - x_i_temp)
             edgeExch = getListOfEdgeExchanges( particlePos_left, pRand ); 
@@ -118,7 +96,7 @@ function [ path, total_length ] = psoOptDisc( data, swarmQuantity, particleIter,
         
         % update globalBest after optimization
         [ globalBestPath, globalBestDist ] = findGlobalBestPermutation( distances, personalBest, globalBestPath );
-        fprintf('globalBestPath: %s, %f\n', sprintf('%i ', globalBestPath), globalBestDist);
+        %fprintf('globalBestPath: %s, %f\n', sprintf('%i ', globalBestPath), globalBestDist);
         if pi >= particleIter
             break
         end
