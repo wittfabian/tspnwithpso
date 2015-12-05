@@ -7,7 +7,7 @@
 % useTurbulenceFactor - decide whether turbulence factor should be used or not
 % tfNewSet - if useTurbulenceFactor == true: number of particles that were used for turbulence factoring
 
-function [ path, total_length, travelPoints ] = psoOpt( data, path, swarmQuantity, particleIter, stopThreshold, useTurbulenceFactor, tfNewSet, changeInLastElements )
+function [ path, total_length, travelPoints ] = psoOpt( data, path, swarmQuantity, particleIter)
 
     travelPoints = data(:,1:2);
     
@@ -19,16 +19,12 @@ function [ path, total_length, travelPoints ] = psoOpt( data, path, swarmQuantit
     personalBest = particlePos;
 
     % initialize globalBest with personalBest of the first particle
-    [ globalBest, globalBestDist ] = findGlobalBestFullPath( path, personalBest );
+    [ globalBest, ~ ] = findGlobalBestFullPath( path, personalBest );
     
     % initialize velocity
     lastVelocity = zeros(anzCity, 2, swarmQuantity);
     lastVelocity(:) = 0.5;
-        
-    lastGlobalBestDist(1,1) = globalBestDist + 1;
-    lastGlobalBestDist(2,1) = globalBestDist + 2;
-    
-    addTF = 0;
+
     pi = 1;
     while true
 
@@ -39,7 +35,7 @@ function [ path, total_length, travelPoints ] = psoOpt( data, path, swarmQuantit
             for n=1:1:length(path) % iterate through the path
 
                 phi1 = (1-0)*rand(1) + 0; % rand between 0 and 1
-                phi2 = phi1; %(1-0)*rand(1) + 0; % rand between 0 and 1
+                phi2 = (1-0)*rand(1) + 0; % rand between 0 and 1
 
                 % v_i(t+1) => new velocity of the particle p
                 newVelocity = w * lastVelocity(n,:,p)' + phi1 * 1 * (globalBest(n,:)' - particlePos(n,:,p)') + phi2 * (personalBest(n,:,p)' - particlePos(n,:,p)');
@@ -51,8 +47,24 @@ function [ path, total_length, travelPoints ] = psoOpt( data, path, swarmQuantit
                 else
                     % if point leaves the ellipse => set the point at the border
                     [ ~, XYproj ] = Residuals_ellipse(particlePos(n,:,p), [data(n,:) 0]); 
+                    
+                    deltaX = XYproj(1,1) - data(n,1);
+                    deltaY = XYproj(1,2) - data(n,2);
+                    
+                    if (deltaX / deltaX) > 0
+                        signX = -1;
+                    else
+                        signX = 1;
+                    end
 
-                    particlePos(n,:,p) = XYproj;
+                    if (deltaY / deltaY) > 0
+                        signY = -1;
+                    else
+                        signY = 1;
+                    end
+                   
+                    particlePos(n,1,p) = XYproj(1,1) + (deltaX * signX) * 0.0;
+                    particlePos(n,2,p) = XYproj(1,2) + (deltaY * signY) * 0.0;
                 end
                 
                 % find new personalBest for city n
@@ -65,37 +77,9 @@ function [ path, total_length, travelPoints ] = psoOpt( data, path, swarmQuantit
         end
         
         % update globalBest after optimization
-        [ globalBest, globalBestDist ] = findGlobalBestFullPath( path, personalBest, globalBest );
-        %fprintf('globalBest %.3f\n', globalBestDist);
-        
-        
-        %fprintf('lastGlobalBestDist: %.5f; globalBestDist: %.5f; iter: %i\n', lastGlobalBestDist(end,1), globalBestDist, pi);
-        lastGlobalBestDist = [lastGlobalBestDist; globalBestDist];
-        tfUsed = zeros(size(path,2), tfNewSet);
-        if ~checkDistChange( lastGlobalBestDist, 2 ) && addTF < 1 && useTurbulenceFactor == true % add turbulence factor 
-            %fprintf('add turbulence factor\n');
-            
-            for s=1:1:size(path,2)
-                for pt = 1:1:tfNewSet
-                    while true
-                        tfp = round( (swarmQuantity - 1) * rand(1) + 1 ); 
-
-                        if sum(ismember(tfUsed(s,:), tfp)) == 0
-
-                            particlePos(s,:,tfp) = initializeSwarmMember( data(s,:), 1 ); 
-                            personalBest(s,:,tfp) = particlePos(s,:,tfp);
-                            tfUsed(s,pt) = tfp;
-                            break
-                        end
-                    end
-                end
-            end
-            lastGlobalBestDist = [];
-            lastGlobalBestDist(1,1) = globalBestDist + 1;
-            lastGlobalBestDist(2,1) = globalBestDist + 2;
-            addTF = addTF + 1;
-            
-        elseif ((lastGlobalBestDist(end-1,1) - globalBestDist) < stopThreshold && (lastGlobalBestDist(end-1,1) - globalBestDist) > 0) || ~checkDistChange( lastGlobalBestDist, changeInLastElements ) || pi >= particleIter
+        [ globalBest, ~ ] = findGlobalBestFullPath( path, personalBest, globalBest );
+       
+        if pi >= particleIter
             break
         end
 

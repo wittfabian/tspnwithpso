@@ -6,7 +6,7 @@
 showplot_dpso = false;
 showplot_pso = false;
 
-fullloops = 100;
+fullloops = 10;
 
 resultDist = zeros(fullloops, 2, size(datasetname,2)); % 1: min. DPSO, 2: min. PSO
 resultTime = zeros(fullloops, 3, size(datasetname,2)); % 1: min. DPSO, 2: min. PSO, 3: sum
@@ -18,8 +18,12 @@ resultTime = zeros(fullloops, 3, size(datasetname,2)); % 1: min. DPSO, 2: min. P
 % 5: best solution found by the algorithm
 resultOverview = zeros(size(datasetname,2), 5);
 
+% vRandType: edgeExch or 2opt
+% vRandIter: interger > 0 (only for vRandType edgeExch)
+% randArt: randomStart or randomTemp
+moveOptionsDPSO = struct('bLoc', 0.2, 'bGlob', 0.2, 'randArt', 'randomTemp', 'vRandType', '2opt', 'vRandIter', 2);
+
 % loop through all files
-%fprintf('PSO with full path optimization:\n');
 for f = 1%:1:size(datasetname,2) % iterate through datasets
     
     fprintf('dataset: %s\n',datasetname{f});
@@ -30,32 +34,24 @@ for f = 1%:1:size(datasetname,2) % iterate through datasets
     travelPoints = data(:,1:2);
     
     for l=1:1:fullloops % runs to compute the mean error and the standard deviation
-        
-        %fprintf('descrete PSO (loop %i):\n', l);
-        tDpso = tic;
 
-        % vRandType: random or 2opt
-        % [ path, total_length_dpso, travelPoints ] = dPsoOpt( data , swarmQuantity, particleIter, vRandType);
-        [ path, total_length_dpso ] = psoOptDisc( data , 30, 1000, '2opt');
+        tDpso = tic;
+        % [ path, total_length_dpso, travelPoints ] = dPsoOpt( data , swarmQuantity, particleIter, moveOptionsDPSO);
+        [ path, total_length_dpso ] = psoOptDisc( data , 30, 1000, moveOptionsDPSO);
 
         resultTime(l,1,f) = toc(tDpso) * 1000; % in ms
         resultDist(l,1,f) = total_length_dpso;
-
-        %fprintf('distance %.3f in %.3f ms:\n', resultDist(l,1,f), resultTime(l,1,f));
 
         if showplot_dpso == true
             plotSpace( [travelPoints data(:,3:4)], path );
         end
         
-        %fprintf('particle swarm optimization (loop %i):\n', l);
         tPso = tic;
-        %[ path, total_length, travelPoints ] = psoOpt( data, path, swarmQuantity, particleIter, stopThreshold, useTurbulenceFactor, tfNewSet, changeInLastElements )
-        [ path, total_length_pso, travelPoints ] = psoOpt( data, path, 50, 100, 0, true, 5, 20 );
+        %[ path, total_length, travelPoints ] = psoOpt( data, path, swarmQuantity, particleIter )
+        [ path, total_length_pso, travelPoints ] = psoOpt( data, path, 50, 1000);
 
         resultTime(l,2,f) = toc(tPso) * 1000; % in ms
         resultDist(l,2,f) = total_length_pso;
-        
-        %fprintf('distance %.3f in %.3f ms:\n', resultDist(l,2,f), resultTime(l,2,f));
 
         if showplot_pso == true
             plotSpaceAfterPSO( data, path, travelPoints );
@@ -83,4 +79,4 @@ for f = 1%:1:size(datasetname,2) % iterate through datasets
     
 end
 
-clearvars variables showplot_dpso showplot_pso f l tDpso tPso fullloops total_length_dpso total_length_pso
+clearvars variables showplot_dpso showplot_pso f l tDpso tPso fullloops total_length_dpso total_length_pso moveOptionsDPSO
