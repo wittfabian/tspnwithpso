@@ -23,6 +23,8 @@ resultOverview = zeros(size(datasetname,2), 5);
 % randArt: randomStart or randomTemp
 moveOptionsDPSO = struct('bLoc', 0.2, 'bGlob', 0.2, 'randArt', 'randomTemp', 'vRandType', '2opt', 'vRandIter', 2);
 
+moveOptionsPSO = struct('noChangeCountTh', 0, 'boundaryhandlingPercentage', 0.0);
+
 % loop through all files
 for f = 1%:1:size(datasetname,2) % iterate through datasets
     
@@ -47,8 +49,8 @@ for f = 1%:1:size(datasetname,2) % iterate through datasets
         end
         
         tPso = tic;
-        %[ path, total_length, travelPoints ] = psoOpt( data, path, swarmQuantity, particleIter )
-        [ path, total_length_pso, travelPoints ] = psoOpt( data, path, 50, 1000);
+        %[ path, total_length, travelPoints ] = psoOpt( data, path, swarmQuantity, particleIter, moveOptionsPSO )
+        [ path, total_length_pso, travelPoints ] = psoOpt( data, path, 50, 1000, moveOptionsPSO);
 
         resultTime(l,2,f) = toc(tPso) * 1000; % in ms
         resultDist(l,2,f) = total_length_pso;

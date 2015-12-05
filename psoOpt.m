@@ -3,11 +3,8 @@
 % path - shortest path until now
 % swarmQuantity - number of swarm members per ellipse
 % particleIter - maximal number of iterations
-% stopThreshold - minimal change in global distance to continue optimization
-% useTurbulenceFactor - decide whether turbulence factor should be used or not
-% tfNewSet - if useTurbulenceFactor == true: number of particles that were used for turbulence factoring
 
-function [ path, total_length, travelPoints ] = psoOpt( data, path, swarmQuantity, particleIter)
+function [ path, total_length, travelPoints ] = psoOpt( data, path, swarmQuantity, particleIter, moveOptionsPSO)
 
     travelPoints = data(:,1:2);
     
@@ -24,6 +21,8 @@ function [ path, total_length, travelPoints ] = psoOpt( data, path, swarmQuantit
     % initialize velocity
     lastVelocity = zeros(anzCity, 2, swarmQuantity);
     lastVelocity(:) = 0.5;
+    
+    noChangeCount = 0;
 
     pi = 1;
     while true
@@ -46,25 +45,30 @@ function [ path, total_length, travelPoints ] = psoOpt( data, path, swarmQuantit
                     lastVelocity(n,:,p) = newVelocity';
                 else
                     % if point leaves the ellipse => set the point at the border
-                    [ ~, XYproj ] = Residuals_ellipse(particlePos(n,:,p), [data(n,:) 0]); 
-                    
-                    deltaX = XYproj(1,1) - data(n,1);
-                    deltaY = XYproj(1,2) - data(n,2);
-                    
-                    if (deltaX / deltaX) > 0
-                        signX = -1;
-                    else
-                        signX = 1;
-                    end
+                    XYproj = getNextBoarderPoint( data(n,:), particlePos(n,:,p), (particlePos(n,:,p) + newVelocity') );
 
-                    if (deltaY / deltaY) > 0
-                        signY = -1;
-                    else
-                        signY = 1;
+                    % XYproj isempty if line between particlePos and particlePos+newVelocity have no intersection with the ellipse
+                    % this mean that particlePos lies on the border
+                    if ~isempty(XYproj) 
+                        deltaX = XYproj(1,1) - particlePos(n,1,p);
+                        deltaY = XYproj(1,2) - particlePos(n,2,p);
+
+                        if (deltaX / deltaX) > 0
+                            signX = -1;
+                        else
+                            signX = 1;
+                        end
+
+                        if (deltaY / deltaY) > 0
+                            signY = -1;
+                        else
+                            signY = 1;
+                        end
+
+                        particlePos(n,1,p) = XYproj(1,1) + (deltaX * signX) * moveOptionsPSO.boundaryhandlingPercentage;
+                        particlePos(n,2,p) = XYproj(1,2) + (deltaY * signY) * moveOptionsPSO.boundaryhandlingPercentage;
                     end
-                   
-                    particlePos(n,1,p) = XYproj(1,1) + (deltaX * signX) * 0.0;
-                    particlePos(n,2,p) = XYproj(1,2) + (deltaY * signY) * 0.0;
+                        
                 end
                 
                 % find new personalBest for city n
@@ -77,7 +81,19 @@ function [ path, total_length, travelPoints ] = psoOpt( data, path, swarmQuantit
         end
         
         % update globalBest after optimization
+        lastGlobalBest = globalBest;
         [ globalBest, ~ ] = findGlobalBestFullPath( path, personalBest, globalBest );
+        
+        if lastGlobalBest == globalBest
+            noChangeCount = noChangeCount + 1;
+        end
+        
+        if noChangeCount > moveOptionsPSO.noChangeCountTh
+            tfp = round( (swarmQuantity - 1) * rand(1) + 1 );
+            particlePos(:,:,tfp) = initializeSwarmMemberFullPath( data, 1 ,'random');
+            personalBest(:,:,tfp) = particlePos(:,:,tfp);
+            noChangeCount = 0;
+        end
        
         if pi >= particleIter
             break
