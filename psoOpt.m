@@ -20,14 +20,24 @@ function [ path, total_length, travelPoints ] = psoOpt( data, path, swarmQuantit
     
     % initialize velocity
     lastVelocity = zeros(anzCity, 2, swarmQuantity);
-    lastVelocity(:) = 0.5;
+
+    if isfield(moveOptionsPSO,'initVelocity')
+        lastVelocity(:) = moveOptionsPSO.initVelocity;
+    else
+        lastVelocity(:) = 0.5;
+    end
     
     noChangeCount = 0;
+    
+    % influence of the last velicity
+    if isfield(moveOptionsPSO,'initInertiaWeight')
+        w = moveOptionsPSO.initInertiaWeight;
+    else
+        w = 0.5;
+    end
 
     pi = 1;
     while true
-
-        w = 0.5; % influence of the last velicity
 
         for p=1:1:size(particlePos,3) % iterate through particles (one particle = one tour)
 
@@ -74,7 +84,7 @@ function [ path, total_length, travelPoints ] = psoOpt( data, path, swarmQuantit
                 % find new personalBest for city n
                 distpersonalBest = distancePath( distance(personalBest(:,:,p)), path );
                 distAktPos = distancePath( distance(particlePos(:,:,p)), path );
-                if distAktPos < distpersonalBest
+                if distAktPos <= distpersonalBest
                     personalBest(n,:,p) = particlePos(n,:,p);
                 end
             end
@@ -88,7 +98,7 @@ function [ path, total_length, travelPoints ] = psoOpt( data, path, swarmQuantit
             noChangeCount = noChangeCount + 1;
         end
         
-        if noChangeCount > moveOptionsPSO.noChangeCountTh
+        if isfield(moveOptionsPSO,'noChangeCountTh') && noChangeCount > moveOptionsPSO.noChangeCountTh
             tfp = round( (swarmQuantity - 1) * rand(1) + 1 );
             particlePos(:,:,tfp) = initializeSwarmMemberFullPath( data, 1 ,'random');
             personalBest(:,:,tfp) = particlePos(:,:,tfp);
