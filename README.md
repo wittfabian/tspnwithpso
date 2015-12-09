@@ -13,6 +13,7 @@ Dataset _tspn2DE5_1 after insertion heuristics (first step) and PSO (second step
 
 Min. distance: 191.858 in 244.789 ms.
 
-references
 
+references
+-----------------
 * [shortest path heuristics for travelling salesman problem](http://snipplr.com/view/4064/shortest-path-heuristics-nearest-neighborhood-2-opt-farthest-and-arbitrary-insertion-for-travelling-salesman-problem)
