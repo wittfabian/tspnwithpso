@@ -6,8 +6,8 @@ function [ path, total_length ] = psoOptDisc( data, swarmQuantity, particleIter,
     
     total_length = distancePath( distances, path ); % initialize total_length
 
-    % initialize particles: types: random
-    particlePos = initializeSwarmMemberPermutation( data, swarmQuantity, 'random' );
+    % initialize particles: types: randomNoDup, randomWithDup, randomFifNoDup
+    particlePos = initializeSwarmMemberPermutation( data, swarmQuantity, 'randomWithDup' );
     
     personalBest = particlePos;
     
