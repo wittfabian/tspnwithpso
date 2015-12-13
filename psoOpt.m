@@ -4,9 +4,9 @@
 % swarmQuantity - number of swarm members per ellipse
 % particleIter - maximal number of iterations
 
-function [ path, total_length, travelPoints ] = psoOpt( data, path, swarmQuantity, particleIter, moveOptionsPSO)
+function [ path, total_length, travelPoints ] = psoOpt( data, path, swarmQuantity, particleIter, moveOptions)
 
-    travelPoints = data(:,1:2);
+    %travelPoints = data(:,1:2);
     
     anzCity = size(data,1);
     
@@ -21,8 +21,9 @@ function [ path, total_length, travelPoints ] = psoOpt( data, path, swarmQuantit
     % initialize velocity
     lastVelocity = zeros(anzCity, 2, swarmQuantity);
 
-    if isfield(moveOptionsPSO,'initVelocity')
-        lastVelocity(:) = moveOptionsPSO.initVelocity;
+    % last velicity
+    if isfield(moveOptions,'initVelocity')
+        lastVelocity(:) = moveOptions.initVelocity;
     else
         lastVelocity(:) = 0.5;
     end
@@ -30,8 +31,8 @@ function [ path, total_length, travelPoints ] = psoOpt( data, path, swarmQuantit
     noChangeCount = 0;
     
     % influence of the last velicity
-    if isfield(moveOptionsPSO,'initInertiaWeight')
-        w = moveOptionsPSO.initInertiaWeight;
+    if isfield(moveOptions,'initInertiaWeight')
+        w = moveOptions.initInertiaWeight;
     else
         w = 0.5;
     end
@@ -39,23 +40,28 @@ function [ path, total_length, travelPoints ] = psoOpt( data, path, swarmQuantit
     pi = 1;
     while true
 
-        for p=1:1:size(particlePos,3) % iterate through particles (one particle = one tour)
+        for p=1:1:size(particlePos,3) % iterate through particle groups (one particle group = one tour)
 
             for n=1:1:length(path) % iterate through the path
 
-                phi1 = (1-0)*rand(1) + 0; % rand between 0 and 1
-                phi2 = (1-0)*rand(1) + 0; % rand between 0 and 1
+                phi1 = (1-0.1)*rand(1) + 0.1; % rand between 0 and 1
+                phi2 = (1-0.1)*rand(1) + 0.1; % rand between 0 and 1
+                
+                % constant that determine the attraction rate
+                c1 = 8.0; % in direction to the global best
+                c2 = 5.0; % in direction to the personal best
 
                 % v_i(t+1) => new velocity of the particle p
-                newVelocity = w * lastVelocity(n,:,p)' + phi1 * 1 * (globalBest(n,:)' - particlePos(n,:,p)') + phi2 * (personalBest(n,:,p)' - particlePos(n,:,p)');
+                newVelocity = w * lastVelocity(n,:,p) + phi1 * c1 * (globalBest(n,:) - particlePos(n,:,p)) + phi2 * c2 * (personalBest(n,:,p) - particlePos(n,:,p));
 
                 % x_i(t+1) => new position of the particle p
-                if isPointInEllipse( data(n,:), (particlePos(n,:,p) + newVelocity') ) == true
-                    particlePos(n,:,p) = particlePos(n,:,p) + newVelocity';
-                    lastVelocity(n,:,p) = newVelocity';
+                if isPointInEllipse( data(n,:), (particlePos(n,:,p) + newVelocity) ) == true
+                    particlePos(n,:,p) = particlePos(n,:,p) + newVelocity;
+                    lastVelocity(n,:,p) = newVelocity;
                 else
+                    %fprintf('out: pi: %i; p: %i; n: %i\n', pi, p, n);
                     % if point leaves the ellipse => set the point at the border
-                    XYproj = getNextBoarderPoint( data(n,:), particlePos(n,:,p), (particlePos(n,:,p) + newVelocity') );
+                    XYproj = getNextBoarderPoint( data(n,:), particlePos(n,:,p), (particlePos(n,:,p) + newVelocity) );
 
                     % XYproj isempty if line between particlePos and particlePos+newVelocity have no intersection with the ellipse
                     % this mean that particlePos lies on the border
@@ -75,8 +81,8 @@ function [ path, total_length, travelPoints ] = psoOpt( data, path, swarmQuantit
                             signY = 1;
                         end
 
-                        particlePos(n,1,p) = XYproj(1,1) + (deltaX * signX) * moveOptionsPSO.boundaryhandlingPercentage;
-                        particlePos(n,2,p) = XYproj(1,2) + (deltaY * signY) * moveOptionsPSO.boundaryhandlingPercentage;
+                        particlePos(n,1,p) = XYproj(1,1) + (deltaX * signX) * moveOptions.boundaryhandlingPercentage;
+                        particlePos(n,2,p) = XYproj(1,2) + (deltaY * signY) * moveOptions.boundaryhandlingPercentage;
                     end
                         
                 end
@@ -94,11 +100,12 @@ function [ path, total_length, travelPoints ] = psoOpt( data, path, swarmQuantit
         lastGlobalBest = globalBest;
         [ globalBest, ~ ] = findGlobalBestFullPath( path, personalBest, globalBest );
         
+        % use turbulence mechanism
         if lastGlobalBest == globalBest
             noChangeCount = noChangeCount + 1;
         end
         
-        if isfield(moveOptionsPSO,'noChangeCountTh') && noChangeCount > moveOptionsPSO.noChangeCountTh
+        if isfield(moveOptions,'noChangeCountTh') && moveOptions.noChangeCountTh > 0 && noChangeCount > moveOptions.noChangeCountTh
             tfp = round( (swarmQuantity - 1) * rand(1) + 1 );
             particlePos(:,:,tfp) = initializeSwarmMemberFullPath( data, 1 ,'random');
             personalBest(:,:,tfp) = particlePos(:,:,tfp);
