@@ -1,18 +1,21 @@
 function particlePos = initializeSwarmMemberPermutation( data, quantity, type )
 
     switch(type)
-        case 'random'
-            particlePos = randomInitialization( data, quantity );
+        case 'randomNoDup'
+            particlePos = randomInitializationNoDuplicate( data, quantity );
             
-        case 'randomFif'
-            particlePos = randomInitializationFif( data, quantity );
+        case 'randomWithDup'
+            particlePos = randomInitializationWithDuplicate( data, quantity );
+            
+        case 'randomFifNoDup'
+            particlePos = randomInitializationFifNoDuplicate( data, quantity );
         
         otherwise
-            particlePos = randomInitialization( data, quantity );
+            particlePos = randomInitializationNoDuplicate( data, quantity );
     end
 end
 
-function particlePos = randomInitialization( data, quantity )
+function particlePos = randomInitializationNoDuplicate( data, quantity )
 
     particlePos = zeros(quantity, size(data,1));
 
@@ -33,7 +36,19 @@ function particlePos = randomInitialization( data, quantity )
     end
 end
 
-function particlePos = randomInitializationFif( data, quantity )
+function particlePos = randomInitializationWithDuplicate( data, quantity )
+
+    particlePos = zeros(quantity, size(data,1));
+
+    for p=1:1:quantity % iterate through particles
+        
+        particlePos(p,:) = randsample(1:size(data,1), size(data,1));
+        
+    end
+end
+
+% fif: first is fixed; first position is always position one (1)
+function particlePos = randomInitializationFifNoDuplicate( data, quantity )
 
     particlePos = zeros(quantity, size(data,1));
 
