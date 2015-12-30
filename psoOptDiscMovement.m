@@ -70,7 +70,7 @@ function particlePos = psoOptDiscMovement( particlePos, personalBest, globalBest
     end
     
     % v_rand = r_rand * b_rand * (p_rand - x_i_temp)
-    edgeExch = getListOfEdgeExchanges( particlePos_left, pRand ); 
+    edgeExch = getListOfEdgeExchanges( particlePos, pRand ); 
     if ~isempty(edgeExch) && round(size(edgeExch,1) * rRand * bRand) > 0
         particlePos_rand = edgeExch(1:round(size(edgeExch,1) * rRand * bRand), :); 
     else

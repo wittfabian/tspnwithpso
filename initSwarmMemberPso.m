@@ -1,4 +1,4 @@
-function particlePos = initializeSwarmMemberFullPath( data, quantity, type )
+function particlePos = initSwarmMemberPso( data, quantity, type )
 
     switch(type)
         case 'random'

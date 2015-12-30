@@ -11,12 +11,12 @@ function [ path, total_length, travelPoints ] = psoOpt( data, path, swarmQuantit
     anzCity = size(data,1);
     
     % initialize particles in each ellipse: types: random, fourparts or center
-    particlePos = initializeSwarmMemberFullPath( data, swarmQuantity, 'random' );
+    particlePos = initSwarmMemberPso( data, swarmQuantity, 'random' );
     
     personalBest = particlePos;
 
     % initialize globalBest with personalBest of the first particle
-    [ globalBest, ~ ] = findGlobalBestFullPath( path, personalBest );
+    [ globalBest, ~ ] = findGlobalBestPso( path, personalBest );
     
     % initialize velocity
     lastVelocity = zeros(anzCity, 2, swarmQuantity);
@@ -48,8 +48,8 @@ function [ path, total_length, travelPoints ] = psoOpt( data, path, swarmQuantit
                 phi2 = (1-0.1)*rand(1) + 0.1; % rand between 0 and 1
                 
                 % constant that determine the attraction rate
-                c1 = 8.0; % in direction to the global best
-                c2 = 5.0; % in direction to the personal best
+                c1 = 0.8; %8.0; % in direction to the global best
+                c2 = 0.5; %5.0; % in direction to the personal best
 
                 % v_i(t+1) => new velocity of the particle p
                 newVelocity = w * lastVelocity(n,:,p) + phi1 * c1 * (globalBest(n,:) - particlePos(n,:,p)) + phi2 * c2 * (personalBest(n,:,p) - particlePos(n,:,p));
@@ -80,6 +80,9 @@ function [ path, total_length, travelPoints ] = psoOpt( data, path, swarmQuantit
                         else
                             signY = 1;
                         end
+                        
+                        lastVelocity(n,1,p) = 0;%XYproj(1,1) - particlePos(n,1,p);
+                        lastVelocity(n,2,p) = 0;%XYproj(1,2) - particlePos(n,2,p);
 
                         particlePos(n,1,p) = XYproj(1,1) + (deltaX * signX) * moveOptions.boundaryhandlingPercentage;
                         particlePos(n,2,p) = XYproj(1,2) + (deltaY * signY) * moveOptions.boundaryhandlingPercentage;
@@ -98,7 +101,7 @@ function [ path, total_length, travelPoints ] = psoOpt( data, path, swarmQuantit
         
         % update globalBest after optimization
         lastGlobalBest = globalBest;
-        [ globalBest, ~ ] = findGlobalBestFullPath( path, personalBest, globalBest );
+        [ globalBest, ~ ] = findGlobalBestPso( path, personalBest, globalBest );
         
         % use turbulence mechanism
         if lastGlobalBest == globalBest
@@ -107,12 +110,11 @@ function [ path, total_length, travelPoints ] = psoOpt( data, path, swarmQuantit
         
         if isfield(moveOptions,'noChangeCountTh') && moveOptions.noChangeCountTh > 0 && noChangeCount > moveOptions.noChangeCountTh
             tfp = round( (swarmQuantity - 1) * rand(1) + 1 );
-            particlePos(:,:,tfp) = initializeSwarmMemberFullPath( data, 1 ,'random');
-            personalBest(:,:,tfp) = particlePos(:,:,tfp);
+            particlePos(:,:,tfp) = initSwarmMemberPso( data, 1 ,'random');
             noChangeCount = 0;
         end
        
-        if pi >= particleIter
+        if pi >= particleIter || (isfield(moveOptions,'noChangeIterStop') && noChangeCount > moveOptions.noChangeIterStop)
             break
         end
 

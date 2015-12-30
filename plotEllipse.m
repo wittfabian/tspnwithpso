@@ -8,7 +8,7 @@ function plotEllipse( x0, y0, r1, r2 )
     plot(x0,y0,'+')
     hold on
 
-    plot(x, y)
+    plot(x, y,'LineWidth',3)
     hold on
 
 

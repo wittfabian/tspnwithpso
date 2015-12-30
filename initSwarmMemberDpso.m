@@ -1,4 +1,4 @@
-function particlePos = initializeSwarmMemberPermutation( data, quantity, type )
+function particlePos = initSwarmMemberDpso( data, quantity, type )
 
     switch(type)
         case 'randomNoDup'

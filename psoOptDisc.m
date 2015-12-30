@@ -2,19 +2,19 @@ function [ path, total_length ] = psoOptDisc( data, swarmQuantity, particleIter,
 
     distances = distance(data(:,1:2));
 
-    path = 1:size(data,1); % initialize path
+    %path = 1:size(data,1); % initialize path
     
-    total_length = distancePath( distances, path ); % initialize total_length
+    %total_length = distancePath( distances, path ); % initialize total_length
 
     % initialize particles: types: randomNoDup, randomWithDup, randomFifNoDup
-    particlePos = initializeSwarmMemberPermutation( data, swarmQuantity, 'randomWithDup' );
+    particlePos = initSwarmMemberDpso( data, swarmQuantity, 'randomWithDup' );
     
     personalBest = particlePos;
     
     % initialize globalBest with personalBest of the first particle
-    [ globalBestPath, ~ ] = findGlobalBestPermutation( distances, personalBest );
+    [ globalBestPath, ~ ] = findGlobalBestDpso( distances, personalBest );
     
-    %fprintf('globalBestPath: %s, %f\n', sprintf('%i ', globalBestPath), globalBestDist);
+    noChangeCount = 0;
     
     pi = 1;
     
@@ -34,9 +34,14 @@ function [ path, total_length ] = psoOptDisc( data, swarmQuantity, particleIter,
         end
         
         % update globalBest after optimization
-        [ globalBestPath, ~ ] = findGlobalBestPermutation( distances, personalBest, globalBestPath );
-        %fprintf('globalBestPath: %s, %f\n', sprintf('%i ', globalBestPath), globalBestDist);
-        if pi >= particleIter
+        lastGlobalBest = globalBestPath;
+        [ globalBestPath, ~ ] = findGlobalBestDpso( distances, personalBest, globalBestPath );
+        
+        if lastGlobalBest == globalBestPath
+            noChangeCount = noChangeCount + 1;
+        end
+        
+        if pi >= particleIter || (isfield(moveOptions, 'noChangeIterStop') && noChangeCount > moveOptions.noChangeIterStop)
             break
         end
         

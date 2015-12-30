@@ -1,4 +1,4 @@
-function [ globalBestPath, globalBestDist ] = findGlobalBestPermutation( distances, personalBest, globalBest )
+function [ globalBestPath, globalBestDist ] = findGlobalBestDpso( distances, personalBest, globalBest )
 
     if nargin == 2
         globalBest = personalBest(1,:);

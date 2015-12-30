@@ -1,4 +1,4 @@
-function [ globalBestCoord, globalBestDist ] = findGlobalBestFullPath( path, personalBest, globalBest )
+function [ globalBestCoord, globalBestDist ] = findGlobalBestPso( path, personalBest, globalBest )
 
     if nargin == 2
         globalBest = personalBest(:, :, 1);
