@@ -31,10 +31,23 @@ function [ path, total_length, travelPoints ] = psoOpt( data, path, swarmQuantit
     noChangeCount = 0;
     
     % influence of the last velicity
-    if isfield(moveOptions,'initInertiaWeight')
-        w = moveOptions.initInertiaWeight;
+    if isfield(moveOptions,'omega')
+        w = moveOptions.omega;
     else
         w = 0.5;
+    end
+    
+    % constant that determine the attraction rate
+    if isfield(moveOptions,'c1') % in direction to the global best
+        c1 = moveOptions.c1; % 8.0
+    else
+        c1 = 0.8; % in direction to the global best
+    end
+
+    if isfield(moveOptions,'c2') % in direction to the personal best
+        c2 = moveOptions.c2; % 5.0
+    else
+        c2 = 0.5; % in direction to the global best
     end
 
     pi = 1;
@@ -46,10 +59,6 @@ function [ path, total_length, travelPoints ] = psoOpt( data, path, swarmQuantit
 
                 phi1 = (1-0.1)*rand(1) + 0.1; % rand between 0 and 1
                 phi2 = (1-0.1)*rand(1) + 0.1; % rand between 0 and 1
-                
-                % constant that determine the attraction rate
-                c1 = 0.8; %8.0; % in direction to the global best
-                c2 = 0.5; %5.0; % in direction to the personal best
 
                 % v_i(t+1) => new velocity of the particle p
                 newVelocity = w * lastVelocity(n,:,p) + phi1 * c1 * (globalBest(n,:) - particlePos(n,:,p)) + phi2 * c2 * (personalBest(n,:,p) - particlePos(n,:,p));
@@ -81,8 +90,8 @@ function [ path, total_length, travelPoints ] = psoOpt( data, path, swarmQuantit
                             signY = 1;
                         end
                         
-                        lastVelocity(n,1,p) = 0;%XYproj(1,1) - particlePos(n,1,p);
-                        lastVelocity(n,2,p) = 0;%XYproj(1,2) - particlePos(n,2,p);
+                        lastVelocity(n,1,p) = 0; % XYproj(1,1) - particlePos(n,1,p);
+                        lastVelocity(n,2,p) = 0; % XYproj(1,2) - particlePos(n,2,p);
 
                         particlePos(n,1,p) = XYproj(1,1) + (deltaX * signX) * moveOptions.boundaryhandlingPercentage;
                         particlePos(n,2,p) = XYproj(1,2) + (deltaY * signY) * moveOptions.boundaryhandlingPercentage;

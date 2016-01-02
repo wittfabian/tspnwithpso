@@ -23,7 +23,7 @@ resultOverview = zeros(size(datasetname,2), 5);
 % randArt: randomStart or randomTemp
 moveOptionsDPSO = struct('bLoc', 0.2, 'bGlob', 0.2, 'randArt', 'randomTemp', 'vRandType', '2opt', 'vRandIter', 0, 'noChangeIterStop', 100);
 
-moveOptionsPSO = struct('initVelocity', 0.0, 'initInertiaWeight', 0.3, 'noChangeCountTh', 0, 'boundaryhandlingPercentage', 0.0, 'noChangeIterStop', 100);
+moveOptionsPSO = struct('initVelocity', 0.0, 'omega', 0.3, 'noChangeCountTh', 0, 'boundaryhandlingPercentage', 0.0, 'noChangeIterStop', 100, 'c1', 8.0, 'c2', 5.0);
 
 % loop through all files
 for f = 1%:1:size(datasetname,2) % iterate through datasets
