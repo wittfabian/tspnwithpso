@@ -34,51 +34,51 @@ function particlePos = psoOptDiscMovement( particlePos, personalBest, globalBest
     % d_loc = x_i(t) + r_loc * b_loc * (p_i - x_i(t))
     edgeExch = getListOfEdgeExchanges( particlePos, personalBest ); % (p_i - x_i(t))
     if ~isempty(edgeExch) && round(size(edgeExch,1) * rLoc * bLoc) > 0
-        dLoc_right = edgeExch(1:round(size(edgeExch,1) * rLoc * bLoc), :); % r_loc * b_loc * (p_i - x_i(t))
+        dLoc_list = edgeExch(1:round(size(edgeExch,1) * rLoc * bLoc), :); % r_loc * b_loc * (p_i - x_i(t))
     else
-        dLoc_right = [];
+        dLoc_list = [];
     end
-    dLoc = applyEdgeExchange( dLoc_right, particlePos ); % x_i(t) + r_loc * b_loc * (p_i - x_i(t))
+    dLoc = applyEdgeExchange( dLoc_list, particlePos ); % x_i(t) + r_loc * b_loc * (p_i - x_i(t))
 
 
     % d_glob = x_i(t) + r_glob * b_glob * (p_glob - x_i(t))
     edgeExch = getListOfEdgeExchanges( particlePos, globalBestPath ); % (p_glob - x_i(t))
     if ~isempty(edgeExch) && round(size(edgeExch,1) * rGlob * bGlob) > 0
-        dGlob_right = edgeExch(1:round(size(edgeExch,1) * rGlob * bGlob), :); % r_glob * b_glob * (p_glob - x_i(t))
+        dGlob_list = edgeExch(1:round(size(edgeExch,1) * rGlob * bGlob), :); % r_glob * b_glob * (p_glob - x_i(t))
     else
-        dGlob_right = [];
+        dGlob_list = [];
     end
-    dGlob = applyEdgeExchange( dGlob_right, particlePos ); %  x_i(t) + r_glob * b_glob * (p_glob - x_i(t))
+    dGlob = applyEdgeExchange( dGlob_list, particlePos ); %  x_i(t) + r_glob * b_glob * (p_glob - x_i(t))
 
-    % x_i_temp = d_glob + 0.5 * (d_loc - d_glob)
+    % d_temp = d_glob + 0.5 * (d_loc - d_glob)
     edgeExch = getListOfEdgeExchanges( dGlob, dLoc ); % (d_loc - d_glob)
     if ~isempty(edgeExch) && round(size(edgeExch,1) * 0.5) > 0
-        particlePos_mid = edgeExch(1:round(size(edgeExch,1) * 0.5), :); % 0.5 * (d_loc - d_glob)
+        d_temp_list = edgeExch(1:round(size(edgeExch,1) * 0.5), :); % 0.5 * (d_loc - d_glob)
     else
-        particlePos_mid = [];
+        d_temp_list = [];
     end
-    particlePos_left = applyEdgeExchange( particlePos_mid, particlePos ); % d_glob + 0.5 * (d_loc - d_glob)
+    d_temp = applyEdgeExchange( d_temp_list, dGlob ); % d_glob + 0.5 * (d_loc - d_glob)
 
     
     % create random position with start or temp position
     if strcmp(moveOptions.randArt, 'randomStart')
         pRand = psoDiscRandomFact( particlePos, distances, moveOptions.vRandIter, moveOptions.vRandType );
     elseif strcmp(moveOptions.randArt, 'randomTemp')
-        pRand = psoDiscRandomFact( particlePos_left, distances, moveOptions.vRandIter, moveOptions.vRandType );
+        pRand = psoDiscRandomFact( d_temp, distances, moveOptions.vRandIter, moveOptions.vRandType );
     else % use randomStart
         pRand = psoDiscRandomFact( particlePos, distances, moveOptions.vRandIter, moveOptions.vRandType );
     end
     
-    % v_rand = r_rand * b_rand * (p_rand - x_i_temp)
-    edgeExch = getListOfEdgeExchanges( particlePos, pRand ); 
+    % v_rand = r_rand * b_rand * (p_rand - d_temp)
+    edgeExch = getListOfEdgeExchanges( d_temp, pRand ); 
     if ~isempty(edgeExch) && round(size(edgeExch,1) * rRand * bRand) > 0
-        particlePos_rand = edgeExch(1:round(size(edgeExch,1) * rRand * bRand), :); 
+        v_rand_list = edgeExch(1:round(size(edgeExch,1) * rRand * bRand), :); 
     else
-        particlePos_rand = [];
+        v_rand_list = [];
     end
 
-    % x_i(t+1) = x_i_temp + v_rand
-    particlePos = applyEdgeExchange( particlePos_rand, particlePos_left );
+    % x_i(t+1) = d_temp + v_rand
+    particlePos = applyEdgeExchange( v_rand_list, d_temp );
 
 end
 
