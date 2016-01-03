@@ -9,16 +9,16 @@ function [ optimalPath, optimalPathLength, resultDist, resultTime ] = optimizati
     parfor l=1:1:fullloops % runs to compute the mean error and the standard deviation
         
         tDpso = tic;
-        % [ path, total_length_dpso, travelPoints ] = dPsoOpt( data , swarmQuantity, particleIter, moveOptionsDPSO);
-        [ path, total_length_dpso ] = psoOptDisc( data , 50, 1000, moveOptionsDPSO);
+        % [ path, total_length_dpso, travelPoints ] = dPsoOpt( data , swarmQuantity, moveOptionsDPSO);
+        [ path, total_length_dpso ] = psoOptDisc( data , 50, moveOptionsDPSO);
 
         dpsoResultTime = toc(tDpso) * 1000; % in ms
         %dpsoResultDist = total_length_dpso;
         
         
         tPso = tic;
-        %[ path, total_length, travelPoints ] = psoOpt( data, path, swarmQuantity, particleIter, moveOptionsPSO )
-        [ ~, total_length_pso, travelPoints ] = psoOpt( data, path, 50, 1000, moveOptionsPSO);
+        %[ path, total_length, travelPoints ] = psoOpt( data, path, swarmQuantity, moveOptionsPSO )
+        [ ~, total_length_pso, travelPoints ] = psoOpt( data, path, 50, moveOptionsPSO);
 
         psoResultTime = toc(tPso) * 1000; % in ms
         %psoResultDist = total_length_pso;

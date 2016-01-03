@@ -1,4 +1,4 @@
-function [ path, total_length ] = psoOptDisc( data, swarmQuantity, particleIter, moveOptions)
+function [ path, total_length ] = psoOptDisc( data, swarmQuantity, moveOptions)
 
     distances = distance(data(:,1:2));
 
@@ -41,7 +41,7 @@ function [ path, total_length ] = psoOptDisc( data, swarmQuantity, particleIter,
             noChangeCount = noChangeCount + 1;
         end
         
-        if pi >= particleIter || (isfield(moveOptions, 'noChangeIterStop') && noChangeCount > moveOptions.noChangeIterStop)
+        if (isfield(moveOptions,'particleIter') && pi >= moveOptions.particleIter) || (isfield(moveOptions, 'noChangeIterStop') && noChangeCount > moveOptions.noChangeIterStop)
             break
         end
         

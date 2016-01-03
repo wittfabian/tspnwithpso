@@ -4,7 +4,7 @@
 % swarmQuantity - number of swarm members per ellipse
 % particleIter - maximal number of iterations
 
-function [ path, total_length, travelPoints ] = psoOpt( data, path, swarmQuantity, particleIter, moveOptions)
+function [ path, total_length, travelPoints ] = psoOpt( data, path, swarmQuantity, moveOptions)
 
     %travelPoints = data(:,1:2);
     
@@ -123,7 +123,7 @@ function [ path, total_length, travelPoints ] = psoOpt( data, path, swarmQuantit
             noChangeCount = 0;
         end
        
-        if pi >= particleIter || (isfield(moveOptions,'noChangeIterStop') && noChangeCount > moveOptions.noChangeIterStop)
+        if (isfield(moveOptions,'particleIter') && pi >= moveOptions.particleIter) || (isfield(moveOptions,'noChangeIterStop') && noChangeCount > moveOptions.noChangeIterStop)
             break
         end
 
