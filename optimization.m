@@ -1,8 +1,9 @@
-function [ optimalPath, optimalPathLength, resultDist, resultTime ] = optimization( f, fullloops, data, datasetname, moveOptionsDPSO, moveOptionsPSO  )
+function [ optimalPath, optimalPathLength, optimalPathOrder, resultDist, resultTime ] = optimization( f, fullloops, data, datasetname, moveOptionsDPSO, moveOptionsPSO  )
 
     resultDist = zeros(fullloops, 2, size(datasetname,2)); % 1: min. DPSO, 2: min. PSO
     resultTime = zeros(fullloops, 3, size(datasetname,2)); % 1: min. DPSO, 2: min. PSO, 3: sum
 
+    optimalPathOrder = zeros(fullloops, size(data,1));
     optimalPath = zeros(size(data,1), 2, fullloops);
     optimalPathLength = Inf(fullloops,1);
 
@@ -27,7 +28,7 @@ function [ optimalPath, optimalPathLength, resultDist, resultTime ] = optimizati
         
         resultTime(l,:,f) = [dpsoResultTime psoResultTime (dpsoResultTime + psoResultTime)];
         
-
+        optimalPathOrder(l,:) = path;
         optimalPath(:,:,l) = travelPoints;
         optimalPathLength(l,1) = total_length_pso;
     end

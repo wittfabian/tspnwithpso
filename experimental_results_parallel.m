@@ -2,14 +2,14 @@
 
 %parpool('local',4);
 %poolobj = gcp('nocreate');
-if matlabpool('size') == 0
-    matlabpool('local', 4)
-end
+%if matlabpool('size') == 0
+%    matlabpool('local', 4)
+%end
 
 % load datasets
 load('data/datasets.mat');
 
-fullloops = 2;
+fullloops = 1;
 
 % 1: relative error (with mean value), 
 % 2: max. value found by the algorithm, 
@@ -32,8 +32,8 @@ for f = 1%:1:size(datasetname,2) % iterate through datasets
 
     % get the data: structure = X Y R1 R2
     data = eval(datasetname{f});
-    
-    [ optimalPath, optimalPathLength, resultDist, resultTime ] = optimization( f, fullloops, data, datasetname, moveOptionsDPSO, moveOptionsPSO  );
+
+    [ optimalPath, optimalPathLength, optimalPathOrder, resultDist, resultTime ] = optimization( f, fullloops, data, datasetname, moveOptionsDPSO, moveOptionsPSO  );
     
     % results
     resultOverview(f,3) = mean(resultDist(:,2,f)); % mean value
@@ -52,7 +52,8 @@ for f = 1%:1:size(datasetname,2) % iterate through datasets
     fprintf('standard deviation: %f\n', resultOverview(f,4));
     fprintf('best solution: %f\n', resultOverview(f,5));
     
-    save(['results/optimalPath_' num2str(f) '.mat'], 'optimalPath', 'optimalPathLength');
+    save(['results/optimalPath_' num2str(f) '.mat'], 'optimalPath', 'optimalPathLength', 'optimalPathOrder');
+    save(['results/resultOverview_' num2str(f) '.mat'],'resultOverview');
 end
 
 save('results/resultOverview.mat','resultOverview');
@@ -60,4 +61,4 @@ save('results/resultOverview.mat','resultOverview');
 clearvars
 %clearvars variables showplot_dpso showplot_pso f l tDpso tPso fullloops total_length_dpso total_length_pso moveOptionsDPSO
 
-matlabpool close
+%matlabpool close
