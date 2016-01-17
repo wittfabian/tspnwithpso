@@ -1,10 +1,12 @@
 
-l = 1;
+l = 29;
 
-data = dataset_tspn2DE5_1;
+data = dataset_tspn2DE8_2;
 
 travelPoints = optimalPath(:,:,l);
 
 path = optimalPathOrder(l,:);
 
-plotSpaceAfterPSO( data, path, travelPoints );
+%plotSpace( data, path, true )
+
+plotSpaceAfterPSO( data, path, travelPoints, true);

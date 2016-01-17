@@ -9,7 +9,7 @@
 % load datasets
 load('data/datasets.mat');
 
-fullloops = 1;
+fullloops = 4;
 
 % 1: relative error (with mean value), 
 % 2: max. value found by the algorithm, 
@@ -21,30 +21,30 @@ resultOverview = zeros(size(datasetname,2), 5);
 % vRandType: edgeExch or 2opt
 % vRandIter: interger > 0 (only for vRandType edgeExch)
 % randArt: randomStart or randomTemp
-moveOptionsDPSO = struct('bLoc', 0.2, 'bGlob', 0.2, 'randArt', 'randomTemp', 'vRandType', '2opt', 'vRandIter', 0, 'noChangeIterStop', 200, 'particleIter', 1000);
+moveOptionsDPSO = struct('bLoc', 0.2, 'bGlob', 0.2, 'randArt', 'randomTemp', 'vRandType', '2opt', 'vRandIter', 0, 'noChangeIterStop', 200, 'particleIter', 100);
 
-moveOptionsPSO = struct('initVelocity', 0.0, 'omega', 0.3, 'noChangeCountTh', 0, 'boundaryhandlingPercentage', 0.0, 'noChangeIterStop', 200, 'c1', 8.0, 'c2', 5.0, 'particleIter', 1000);
+moveOptionsPSO = struct('initVelocity', 0.0, 'omega', 0.3, 'noChangeCountTh', 0, 'boundaryhandlingPercentage', 0.0, 'noChangeIterStop', 1001, 'c1', 8.0, 'c2', 5.0, 'particleIter', 100);
 
 % loop through all files
-for f = 1%:1:size(datasetname,2) % iterate through datasets
+for f = 24%:1:size(datasetname,2) % iterate through datasets
     
     fprintf('dataset: %s\n',datasetname{f});
 
     % get the data: structure = X Y R1 R2
     data = eval(datasetname{f});
 
-    [ optimalPath, optimalPathLength, optimalPathOrder, resultDist, resultTime ] = optimization( f, fullloops, data, datasetname, moveOptionsDPSO, moveOptionsPSO  );
+    [ optimalPath, optimalPathLength, optimalPathOrder, resultDist, resultTime ] = optimization( fullloops, data, moveOptionsDPSO, moveOptionsPSO  );
     
     % results
-    resultOverview(f,3) = mean(resultDist(:,2,f)); % mean value
+    resultOverview(f,3) = mean(resultDist(:,2)); % mean value
     
     resultOverview(f,1) = (resultOverview(f,3) - optimalValue(f,1)) / optimalValue(f,1); % relative error (with mean value)
     
-    resultOverview(f,2) = max(resultDist(:,2,f)); % max. value found by the algorithm
+    resultOverview(f,2) = max(resultDist(:,2)); % max. value found by the algorithm
     
-    resultOverview(f,5) = min(resultDist(:,2,f)); % best solution found by the algorithm
+    resultOverview(f,5) = min(resultDist(:,2)); % best solution found by the algorithm
     
-    resultOverview(f,4) = std(resultDist(:,2,f)); % standard deviation
+    resultOverview(f,4) = std(resultDist(:,2)); % standard deviation
     
     fprintf('relative error: %f\n', resultOverview(f,1));
     fprintf('max. value: %f\n', resultOverview(f,2));
