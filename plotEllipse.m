@@ -10,7 +10,7 @@ function plotEllipse( x0, y0, r1, r2, color)
     if nargin < 5
         plot(x, y, 'LineWidth', 2) 
     else 
-        plot(x, y, 'LineWidth', 2, 'Color', color)    
+        plot(x, y, 'LineWidth', 1, 'Color', color)    
     end
     
     

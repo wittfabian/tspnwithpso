@@ -16,7 +16,7 @@ function [ path, total_length, travelPoints ] = psoOpt( data, path, swarmQuantit
     personalBest = particlePos;
 
     % initialize globalBest with personalBest of the first particle
-    [ globalBest, ~ ] = findGlobalBestPso( path, personalBest );
+    [ globalBest, ~ ] = findGlobalBestPso( path, particlePos );
     
     % initialize velocity
     lastVelocity = zeros(anzCity, 2, swarmQuantity);
@@ -110,7 +110,7 @@ function [ path, total_length, travelPoints ] = psoOpt( data, path, swarmQuantit
         
         % update globalBest after optimization
         lastGlobalBest = globalBest;
-        [ globalBest, ~ ] = findGlobalBestPso( path, personalBest, globalBest );
+        [ globalBest, ~ ] = findGlobalBestPso( path, particlePos, globalBest );
         
         % use turbulence mechanism
         if lastGlobalBest == globalBest
@@ -135,4 +135,3 @@ function [ path, total_length, travelPoints ] = psoOpt( data, path, swarmQuantit
     % calculate the total_length of the cycle
     total_length = distancePath(distance(travelPoints), path);
 end
-

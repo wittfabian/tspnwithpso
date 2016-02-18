@@ -12,7 +12,7 @@ function [ path, total_length ] = psoOptDisc( data, swarmQuantity, moveOptions)
     personalBest = particlePos;
     
     % initialize globalBest with personalBest of the first particle
-    [ globalBestPath, ~ ] = findGlobalBestDpso( distances, personalBest );
+    [ globalBestPath, ~ ] = findGlobalBestDpso( distances, particlePos );
     
     noChangeCount = 0;
     
@@ -35,11 +35,13 @@ function [ path, total_length ] = psoOptDisc( data, swarmQuantity, moveOptions)
         
         % update globalBest after optimization
         lastGlobalBest = globalBestPath;
-        [ globalBestPath, ~ ] = findGlobalBestDpso( distances, personalBest, globalBestPath );
+        [ globalBestPath, globalBestDist ] = findGlobalBestDpso( distances, particlePos, globalBestPath );
         
         if lastGlobalBest == globalBestPath
             noChangeCount = noChangeCount + 1;
         end
+        
+        fprintf('%d\n', globalBestDist);
         
         if (isfield(moveOptions,'particleIter') && pi >= moveOptions.particleIter) || (isfield(moveOptions, 'noChangeIterStop') && noChangeCount > moveOptions.noChangeIterStop)
             break

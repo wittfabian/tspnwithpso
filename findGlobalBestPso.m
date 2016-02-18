@@ -1,19 +1,19 @@
-function [ globalBestCoord, globalBestDist ] = findGlobalBestPso( path, personalBest, globalBest )
+function [ globalBestCoord, globalBestDist ] = findGlobalBestPso( path, particlePos, globalBest )
 
     if nargin == 2
-        globalBest = personalBest(:, :, 1);
+        globalBest = particlePos(:, :, 1);
     end
 
     globalBestCoord = globalBest;
     globalBestDist = distancePath(distance(globalBest), path);
 
-    for d=1:1:size(personalBest,3)
+    for d=1:1:size(particlePos,3)
         
-        personalBestDist = distancePath(distance(personalBest(:,:,d)), path);
+        particlePosDist = distancePath(distance(particlePos(:,:,d)), path);
         
-        if personalBestDist < globalBestDist
-            globalBestCoord = personalBest(:,:,d);
-            globalBestDist = personalBestDist;
+        if particlePosDist < globalBestDist
+            globalBestCoord = particlePos(:,:,d);
+            globalBestDist = particlePosDist;
         end
     end
 end
