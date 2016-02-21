@@ -9,7 +9,7 @@
 % load datasets
 load('data/datasets.mat');
 
-fullloops = 1;
+fullloops = 4;
 
 % 1: relative error (with mean value), 
 % 2: max. value found by the algorithm, 
@@ -21,9 +21,9 @@ resultOverview = zeros(size(datasetname,2), 5);
 % vRandType: edgeExch or 2opt
 % vRandIter: interger > 0 (only for vRandType edgeExch)
 % randArt: randomStart or randomTemp
-moveOptionsDPSO = struct('bLoc', 0.2, 'bGlob', 0.2, 'randArt', 'randomTemp', 'vRandType', '2opt', 'vRandIter', 0, 'noChangeIterStop', 200, 'particleIter', 20);
+moveOptionsDPSO = struct('bLoc', 0.2, 'bGlob', 0.2, 'randArt', 'randomTemp', 'vRandType', '2opt', 'vRandIter', 0, 'noChangeIterStop', 200, 'particleIter', 100);
 
-moveOptionsPSO = struct('initVelocity', 0.0, 'omega', 0.3, 'noChangeCountTh', 0, 'boundaryhandlingPercentage', 0.0, 'noChangeIterStop', 1001, 'c1', 8.0, 'c2', 5.0, 'particleIter', 20);
+moveOptionsPSO = struct('initVelocity', 0.0, 'omega', 0.3, 'noChangeCountTh', 0, 'boundaryhandlingPercentage', 0.0, 'noChangeIterStop', 1001, 'c1', 1.0, 'c2', 1.0, 'particleIter', 100);
 
 % loop through all files
 for f = 1%:1:size(datasetname,2) % iterate through datasets
